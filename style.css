@@ -16,3 +16,6 @@ dialog{position:fixed;inset:0 0 0 auto;max-height:100dvh;height:100dvh;width:min
 .contact-grid>[data-reveal] p{max-width:580px;margin-top:45px}
 @media(max-width:700px){.product-copy .eyebrow{font-size:11px;line-height:1.5;margin-top:16px}.contact-grid>[data-reveal] p{margin-top:28px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+/* Navigation drawer opens from the left. */
+#menu{inset:0 auto 0 0;margin:0 auto 0 0}
