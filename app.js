@@ -27,6 +27,10 @@ document.querySelectorAll('[data-slide]').forEach(button => {
   const track = document.getElementById(button.dataset.target);
   button.addEventListener('click', () => {
     const step = track.firstElementChild.getBoundingClientRect().width + parseFloat(getComputedStyle(track).gap);
+    if (track.id === 'history-track' && historySection.classList.contains('is-scroll-driven')) {
+      moveHistory(Number(button.dataset.slide) * step);
+      return;
+    }
     track.scrollBy({left: Number(button.dataset.slide) * step, behavior: reducedMotion.matches ? 'instant' : 'smooth'});
   });
   const update = () => { button.disabled = button.dataset.slide === '-1' ? track.scrollLeft < 2 : track.scrollLeft >= track.scrollWidth - track.clientWidth - 2; };
@@ -116,3 +120,60 @@ productDetails.addEventListener('close', () => {
   document.body.classList.remove('product-detail-open');
   productTrigger?.focus({preventScroll:true});
 });
+
+const contactQuestion = document.querySelector('#contact-form textarea');
+function sizeContactQuestion() {
+  contactQuestion.style.height = '24px';
+  const height = contactQuestion.scrollHeight + 1;
+  contactQuestion.style.height = Math.min(240, Math.max(24, height)) + 'px';
+  contactQuestion.style.overflowY = height > 240 ? 'auto' : 'hidden';
+}
+contactQuestion.addEventListener('input', sizeContactQuestion);
+window.addEventListener('resize', sizeContactQuestion);
+sizeContactQuestion();
+
+// Map normal page scrolling to the horizontal company timeline.
+const historySection = document.querySelector('.history');
+const historyStage = historySection.querySelector('.history-stage');
+const historyTrack = document.querySelector('#history-track');
+const historyMotion = matchMedia('(min-width: 701px) and (min-height: 650px) and (prefers-reduced-motion: no-preference)');
+let historyFrame = 0;
+function paintHistory() {
+  historyFrame = 0;
+  if (!historySection.classList.contains('is-scroll-driven')) return;
+  const distance = historyTrack.scrollWidth - historyTrack.clientWidth;
+  historyTrack.scrollLeft = Math.min(distance, Math.max(0, 24 - historySection.getBoundingClientRect().top));
+}
+function requestHistory() {
+  if (!historyFrame) historyFrame = requestAnimationFrame(paintHistory);
+}
+function configureHistory() {
+  historySection.classList.remove('is-scroll-driven');
+  historySection.style.removeProperty('--history-height');
+  const distance = historyTrack.scrollWidth - historyTrack.clientWidth;
+  if (historyMotion.matches && distance > 1) {
+    historySection.classList.add('is-scroll-driven');
+    if (historyStage.offsetHeight + 24 >= innerHeight) {
+      historySection.classList.remove('is-scroll-driven');
+      return;
+    }
+    historySection.style.setProperty('--history-height', (historyStage.offsetHeight + distance) + 'px');
+    requestHistory();
+  }
+}
+function moveHistory(delta) {
+  const distance = historyTrack.scrollWidth - historyTrack.clientWidth;
+  const next = Math.min(distance, Math.max(0, historyTrack.scrollLeft + delta));
+  const top = scrollY + historySection.getBoundingClientRect().top - 24;
+  window.scrollTo({top: top + next, behavior:'smooth'});
+}
+historyTrack.addEventListener('keydown', event => {
+  if (!historySection.classList.contains('is-scroll-driven') || !['ArrowLeft','ArrowRight'].includes(event.key)) return;
+  event.preventDefault();
+  moveHistory((event.key === 'ArrowRight' ? 1 : -1) * (historyTrack.firstElementChild.offsetWidth + 24));
+});
+window.addEventListener('scroll', requestHistory, {passive:true});
+window.addEventListener('resize', configureHistory, {passive:true});
+historyMotion.addEventListener('change', configureHistory);
+document.fonts.ready.then(configureHistory);
+configureHistory();

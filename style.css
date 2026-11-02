@@ -71,3 +71,11 @@ body.product-detail-open{overflow:hidden}
 .contacts .form-status{min-height:0;margin-top:16px;line-height:1.5}
 @media(max-width:700px){.contacts{padding-inline:22px}.contacts .contact-grid{grid-template-columns:1fr;gap:32px}.contacts .contact-grid>[data-reveal] p{max-width:360px;margin-top:24px;font-size:12px}.contacts #contact-form{padding-top:0}.contacts #contact-form label{font-size:12px}.contacts #contact-form .submit{font-size:14px;min-height:46px}}
 @media(max-width:380px){.contacts .form-row{grid-template-columns:1fr;gap:22px}}
+/* Keep native textarea chrome consistent with the dark contact section. */
+.contacts #contact-form textarea{resize:none;overflow-y:hidden;min-height:24px;height:24px;color-scheme:dark;scrollbar-color:#91a298 #10251b;scrollbar-width:thin}
+.contacts #contact-form input{color-scheme:dark}
+
+.history-stage{min-width:0}
+.history.is-scroll-driven{padding-top:0;padding-bottom:0;height:var(--history-height)}
+.history.is-scroll-driven .history-stage{position:sticky;top:24px;padding-top:40px;padding-bottom:40px}
+.history.is-scroll-driven .history-track{scroll-snap-type:none;scroll-behavior:auto}
