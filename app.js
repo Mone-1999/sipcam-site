@@ -68,3 +68,51 @@ microDesktop.addEventListener('change', configureMicroplus);
 window.addEventListener('scroll', requestMicroplus, {passive:true});
 window.addEventListener('resize', requestMicroplus, {passive:true});
 configureMicroplus();
+
+// Product information is copied from the approved source HTML.
+const productDetails = document.querySelector('#product-details');
+const productContent = productDetails.querySelector('.product-detail-content');
+let productTrigger = null;
+let productClosing = false;
+let productCloseTimer;
+document.querySelectorAll('.product-open').forEach(button => {
+  button.addEventListener('click', () => {
+    productTrigger = button;
+    productContent.replaceChildren(document.querySelector('#product-detail-' + button.dataset.product).content.cloneNode(true));
+    productClosing = false;
+    clearTimeout(productCloseTimer);
+    productDetails.showModal();
+    document.body.classList.add('product-detail-open');
+    productDetails.scrollTop = 0;
+    // Commit the offscreen starting position before the entry transition.
+    productDetails.getBoundingClientRect();
+    productDetails.classList.add('is-open');
+  });
+});
+function finishProductClose() {
+  clearTimeout(productCloseTimer);
+  if (productDetails.open) productDetails.close();
+}
+function closeProductDetails() {
+  if (productClosing || !productDetails.open) return;
+  productClosing = true;
+  productDetails.classList.remove('is-open');
+  if (reducedMotion.matches) finishProductClose();
+  else productCloseTimer = setTimeout(finishProductClose, 500);
+}
+productDetails.querySelector('.product-close').addEventListener('click', closeProductDetails);
+productDetails.addEventListener('cancel', event => { event.preventDefault(); closeProductDetails(); });
+productDetails.addEventListener('click', event => {
+  const rect = productDetails.getBoundingClientRect();
+  if (event.target === productDetails && (event.clientX < rect.left || event.clientX > rect.right)) closeProductDetails();
+});
+productDetails.addEventListener('transitionend', event => {
+  if (productClosing && event.target === productDetails && event.propertyName === 'transform') finishProductClose();
+});
+productDetails.addEventListener('close', () => {
+  clearTimeout(productCloseTimer);
+  productClosing = false;
+  productDetails.classList.remove('is-open');
+  document.body.classList.remove('product-detail-open');
+  productTrigger?.focus({preventScroll:true});
+});
