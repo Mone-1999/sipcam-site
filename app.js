@@ -21,7 +21,7 @@ toggle.addEventListener('click', () => { menu.showModal(); toggle.setAttribute('
 const closeMenu = () => menu.close();
 menu.querySelector('.menu-close').addEventListener('click', closeMenu);
 menu.querySelectorAll('a').forEach(a => a.addEventListener('click',closeMenu));
-menu.addEventListener('click', event => { if (event.target === menu && event.clientX < menu.getBoundingClientRect().left) closeMenu(); });
+menu.addEventListener('click', event => { if (event.target === menu && event.clientX > menu.getBoundingClientRect().right) closeMenu(); });
 menu.addEventListener('close', () => { toggle.setAttribute('aria-expanded','false'); document.body.classList.remove('menu-open'); toggle.focus({preventScroll:true}); });
 document.querySelectorAll('[data-slide]').forEach(button => {
   const track = document.getElementById(button.dataset.target);
