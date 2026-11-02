@@ -17,49 +17,12 @@ if ('IntersectionObserver' in window && !reducedMotion.matches) {
 }
 const menu = document.querySelector('#menu');
 const toggle = document.querySelector('.menu-toggle');
-let menuMotion = null;
-let menuRevision = 0;
-const animateMenu = (opening) => {
-  const revision = ++menuRevision;
-  const from = menuMotion ? getComputedStyle(menu).transform : (opening ? 'translateX(-100%)' : 'translateX(0)');
-  menuMotion?.cancel();
-  menuMotion = null;
-  const finish = () => {
-    if (revision !== menuRevision) return;
-    menuMotion = null;
-    if (!opening && menu.open) menu.close();
-  };
-  if (reducedMotion.matches || !menu.animate) { finish(); return; }
-  menuMotion = menu.animate(
-    [{transform: from}, {transform: opening ? 'translateX(0)' : 'translateX(-100%)'}],
-    {duration: opening ? 420 : 300, easing: opening ? 'cubic-bezier(.22,1,.36,1)' : 'cubic-bezier(.4,0,1,1)', fill: 'forwards'}
-  );
-  const animation = menuMotion;
-  animation.finished.then(() => { finish(); animation.cancel(); }, () => {});
-};
-toggle.addEventListener('click', () => {
-  if (!menu.open) menu.showModal();
-  toggle.setAttribute('aria-expanded', 'true');
-  document.body.classList.add('menu-open');
-  animateMenu(true);
-});
-const closeMenu = () => { if (menu.open) animateMenu(false); };
+toggle.addEventListener('click', () => { menu.showModal(); toggle.setAttribute('aria-expanded','true'); document.body.classList.add('menu-open'); });
+const closeMenu = () => menu.close();
 menu.querySelector('.menu-close').addEventListener('click', closeMenu);
-menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-menu.addEventListener('cancel', event => { event.preventDefault(); closeMenu(); });
-menu.addEventListener('click', event => {
-  const rect = menu.getBoundingClientRect();
-  if (event.target === menu && (event.clientX < rect.left || event.clientX > rect.right)) closeMenu();
-});
-menu.addEventListener('close', () => {
-  ++menuRevision;
-  menuMotion?.cancel();
-  menuMotion = null;
-  toggle.setAttribute('aria-expanded', 'false');
-  document.body.classList.remove('menu-open');
-  toggle.focus({preventScroll: true});
-});
-reducedMotion.addEventListener('change', event => { if (event.matches) menuMotion?.finish(); });
+menu.querySelectorAll('a').forEach(a => a.addEventListener('click',closeMenu));
+menu.addEventListener('click', event => { if (event.target === menu && event.clientX < menu.getBoundingClientRect().left) closeMenu(); });
+menu.addEventListener('close', () => { toggle.setAttribute('aria-expanded','false'); document.body.classList.remove('menu-open'); toggle.focus({preventScroll:true}); });
 document.querySelectorAll('[data-slide]').forEach(button => {
   const track = document.getElementById(button.dataset.target);
   button.addEventListener('click', () => {
@@ -75,3 +38,33 @@ document.querySelector('#contact-form').addEventListener('submit', event => {
   event.preventDefault();
   document.querySelector('.form-status').textContent = 'Это предварительный просмотр: сообщение не отправлено. Связаться с нами можно по адресу info@sipcam.ru.';
 });
+
+// Native sticky scrolling: no scroll hijacking, timers, or animation library.
+const microStory = document.querySelector('.micro-story');
+const microDesktop = matchMedia('(min-width: 901px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)');
+let microFrame = 0;
+const clamp = value => Math.max(0, Math.min(1, value));
+function paintMicroplus() {
+  microFrame = 0;
+  if (!microDesktop.matches) return;
+  const bounds = microStory.getBoundingClientRect();
+  const travel = bounds.height - window.innerHeight;
+  const progress = clamp(-bounds.top / Math.max(1, travel));
+  microStory.style.setProperty('--micro-progress', progress.toFixed(4));
+  microStory.style.setProperty('--orb-turn', `${-12 + progress * 62}deg`);
+  microStory.style.setProperty('--orb-scale', (1 + Math.sin(progress * Math.PI) * .035).toFixed(4));
+  [0, .29, .58].forEach((start, i) => microStory.style.setProperty(`--pair-${i}`, clamp((progress - start) / .15).toFixed(4)));
+}
+function requestMicroplus() { if (microDesktop.matches && !microFrame) microFrame = requestAnimationFrame(paintMicroplus); }
+function configureMicroplus() {
+  microStory.classList.toggle('scroll-ready', microDesktop.matches);
+  if (!microDesktop.matches) {
+    microStory.style.removeProperty('--orb-turn');
+    microStory.style.removeProperty('--orb-scale');
+  }
+  requestMicroplus();
+}
+microDesktop.addEventListener('change', configureMicroplus);
+window.addEventListener('scroll', requestMicroplus, {passive:true});
+window.addEventListener('resize', requestMicroplus, {passive:true});
+configureMicroplus();
