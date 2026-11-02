@@ -79,3 +79,12 @@ body.product-detail-open{overflow:hidden}
 .history.is-scroll-driven{padding-top:0;padding-bottom:0;height:var(--history-height)}
 .history.is-scroll-driven .history-stage{position:sticky;top:24px;padding-top:40px;padding-bottom:40px}
 .history.is-scroll-driven .history-track{scroll-snap-type:none;scroll-behavior:auto}
+
+/* Product scroll scene preserves the existing card widths and aspect ratio. */
+.products{display:block}
+.products-stage{display:grid;grid-template-columns:36% minmax(0,1fr);gap:3%;min-width:0}
+.products.is-scroll-driven{padding-top:0;padding-bottom:0;height:var(--products-height)}
+.products.is-scroll-driven .products-stage{position:sticky;top:24px;padding-top:40px;padding-bottom:40px}
+.products.is-scroll-driven .product-track{scroll-snap-type:none;scroll-behavior:auto}
+@media(max-width:1100px){.products-stage{grid-template-columns:30% minmax(0,1fr)}}
+@media(max-width:700px){.products-stage{grid-template-columns:minmax(0,1fr);gap:28px}}

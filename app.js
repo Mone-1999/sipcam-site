@@ -31,6 +31,10 @@ document.querySelectorAll('[data-slide]').forEach(button => {
       moveHistory(Number(button.dataset.slide) * step);
       return;
     }
+    if (track.id === 'product-track' && productsSection.classList.contains('is-scroll-driven')) {
+      moveProducts(Number(button.dataset.slide) * step);
+      return;
+    }
     track.scrollBy({left: Number(button.dataset.slide) * step, behavior: reducedMotion.matches ? 'instant' : 'smooth'});
   });
   const update = () => { button.disabled = button.dataset.slide === '-1' ? track.scrollLeft < 2 : track.scrollLeft >= track.scrollWidth - track.clientWidth - 2; };
@@ -177,3 +181,50 @@ window.addEventListener('resize', configureHistory, {passive:true});
 historyMotion.addEventListener('change', configureHistory);
 document.fonts.ready.then(configureHistory);
 configureHistory();
+
+// Map normal page scrolling to the product cards.
+
+const productsSection = document.querySelector('.products');
+const productsStage = productsSection.querySelector('.products-stage');
+const productsTrack = document.querySelector('#product-track');
+const productsMotion = matchMedia('(min-width: 701px) and (min-height: 650px) and (prefers-reduced-motion: no-preference)');
+let productsFrame = 0;
+function paintProducts() {
+  productsFrame = 0;
+  if (!productsSection.classList.contains('is-scroll-driven')) return;
+  const distance = productsTrack.scrollWidth - productsTrack.clientWidth;
+  productsTrack.scrollLeft = Math.min(distance, Math.max(0, 24 - productsSection.getBoundingClientRect().top));
+}
+function requestProducts() {
+  if (!productsFrame) productsFrame = requestAnimationFrame(paintProducts);
+}
+function configureProducts() {
+  productsSection.classList.remove('is-scroll-driven');
+  productsSection.style.removeProperty('--products-height');
+  const distance = productsTrack.scrollWidth - productsTrack.clientWidth;
+  if (productsMotion.matches && distance > 1) {
+    productsSection.classList.add('is-scroll-driven');
+    if (productsStage.offsetHeight + 24 >= innerHeight) {
+      productsSection.classList.remove('is-scroll-driven');
+      return;
+    }
+    productsSection.style.setProperty('--products-height', (productsStage.offsetHeight + distance) + 'px');
+    requestProducts();
+  }
+}
+function moveProducts(delta) {
+  const distance = productsTrack.scrollWidth - productsTrack.clientWidth;
+  const next = Math.min(distance, Math.max(0, productsTrack.scrollLeft + delta));
+  const top = scrollY + productsSection.getBoundingClientRect().top - 24;
+  window.scrollTo({top: top + next, behavior:'smooth'});
+}
+productsTrack.addEventListener('keydown', event => {
+  if (!productsSection.classList.contains('is-scroll-driven') || !['ArrowLeft','ArrowRight'].includes(event.key)) return;
+  event.preventDefault();
+  moveProducts((event.key === 'ArrowRight' ? 1 : -1) * (productsTrack.firstElementChild.offsetWidth + 24));
+});
+window.addEventListener('scroll', requestProducts, {passive:true});
+window.addEventListener('resize', configureProducts, {passive:true});
+productsMotion.addEventListener('change', configureProducts);
+document.fonts.ready.then(configureProducts);
+configureProducts();
