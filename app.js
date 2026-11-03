@@ -228,3 +228,10 @@ window.addEventListener('resize', configureProducts, {passive:true});
 productsMotion.addEventListener('change', configureProducts);
 document.fonts.ready.then(configureProducts);
 configureProducts();
+
+// Distinguish keyboard focus from focus restored after a tap or click.
+document.documentElement.dataset.inputMode = "pointer";
+document.addEventListener("pointerdown", () => { document.documentElement.dataset.inputMode = "pointer"; }, true);
+document.addEventListener("keydown", event => {
+  if (["Tab","ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(event.key)) document.documentElement.dataset.inputMode = "keyboard";
+}, true);

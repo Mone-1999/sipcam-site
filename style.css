@@ -25,7 +25,7 @@
 .product-card:focus-within>img{transform:scale(1.035)}
 .product-open{position:absolute;inset:0;width:100%;border:0;background:transparent;color:var(--ink);display:flex;justify-content:space-between;align-items:flex-end;padding:16px;font-size:12px;text-transform:uppercase;text-align:left}
 .product-open span{background:var(--paper);padding:9px 12px}
-.product-open:focus-visible{outline:2px solid var(--ink);outline-offset:-5px}
+.product-open:focus,.product-open:focus-visible{outline:none;box-shadow:none}
 body.product-detail-open{overflow:hidden}
 #product-details{position:fixed;inset:0 0 0 auto;margin:0;width:min(680px,52vw);max-width:100%;height:100%;height:100dvh;max-height:100dvh;padding:0;border:0;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain;transform:translateX(100%);opacity:0;transition:transform .5s var(--ease),opacity .35s}
 #product-details.is-open{transform:translateX(0);opacity:1}
@@ -100,3 +100,10 @@ body.product-detail-open{overflow:hidden}
  .factory{position:relative;left:auto;bottom:auto;width:min(220px,100%);margin-top:48px}
  .factory figcaption{padding:18px 16px;font-size:15px;line-height:1.35;text-align:left;hyphens:auto;overflow-wrap:anywhere}
 }
+
+/* Pointer focus stays invisible; keyboard navigation keeps a deliberate indicator. */
+.product-open,.product-close{-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.product-close{border:0;outline:none;box-shadow:none;border-radius:0}
+.product-close:focus,.product-close:focus-visible{outline:none;box-shadow:none}
+html[data-input-mode="keyboard"] .product-open:focus-visible{outline:2px solid var(--olive);outline-offset:-5px}
+html[data-input-mode="keyboard"] .product-close:focus-visible{outline:2px solid var(--olive);outline-offset:2px}
