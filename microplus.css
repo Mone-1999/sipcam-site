@@ -22,3 +22,7 @@
 @media(prefers-reduced-motion:reduce){.micro-orb-visual{transform:none;will-change:auto}.micro-benefit.reveal{opacity:1;transform:none}}
 
 
+
+/* Let each mobile row follow its own content, not the orb's height. */
+@media(max-width:900px){.micro-composition{grid-template-rows:none;grid-auto-rows:auto;align-items:start}}
+@media(max-width:520px){.micro-composition{row-gap:0}.micro-benefit{padding:22px 0}.micro-benefit p{margin-top:10px}.micro-orb{margin-bottom:26px}}

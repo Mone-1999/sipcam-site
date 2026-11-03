@@ -88,3 +88,15 @@ body.product-detail-open{overflow:hidden}
 .products.is-scroll-driven .product-track{scroll-snap-type:none;scroll-behavior:auto}
 @media(max-width:1100px){.products-stage{grid-template-columns:30% minmax(0,1fr)}}
 @media(max-width:700px){.products-stage{grid-template-columns:minmax(0,1fr);gap:28px}}
+
+/* Mobile fixes from the supplied Safari screenshots. */
+.menu-close{-webkit-appearance:none;appearance:none;display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:0;outline:none;box-shadow:none}
+.menu-close:focus-visible{outline:2px solid var(--paper);outline-offset:4px}
+@media(hover:none){.menu-close:focus{outline:none;box-shadow:none}}
+@media(max-width:700px){
+ .hero-photo{z-index:-2}
+ .hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,transparent 40%,rgba(16,37,27,.08) 55%,rgba(16,37,27,.46) 100%)}
+ .hero-intro{background:none;padding:0}
+ .factory{position:relative;left:auto;bottom:auto;width:min(220px,100%);margin-top:48px}
+ .factory figcaption{padding:18px 16px;font-size:15px;line-height:1.35;text-align:left;hyphens:auto;overflow-wrap:anywhere}
+}
